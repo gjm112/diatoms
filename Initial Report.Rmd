@@ -76,8 +76,12 @@ ggplot(plot_data %>% filter(!is.na(Mean.time.of.deposition)), aes(x = Mean.time.
 
 ```{r}
 #Stratify by group
+
+#Test for ANY dependence.  
+#Citation: https://projecteuclid.org/journals/annals-of-statistics/volume-35/issue-6/Measuring-and-testing-dependence-by-correlation-of-distances/10.1214/009053607000000505.full
 library(energy)
 dcor.test(plot_data$Mean.time.of.deposition, plot_data$total_val)
 
+#Test for monotonic relationship
 cor.test(plot_data$Mean.time.of.deposition, plot_data$total_val, method = "kendall")
 ```
