@@ -1,0 +1,74 @@
+---
+title: "Initial Report CDSC"
+output: html_document
+date: "2026-04-20"
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+taxon <- read.csv("./data/taxonomy_species_table.csv")
+final <- read.csv("./data/Final_diatom_phytolith_by_transect.csv")
+```
+
+```{r}
+final <- final %>% 
+  select(-any_of(c(
+    paste0("Diatom_Unidentified_", LETTERS[1:5]),
+    "Diatom_Unknown_Diatom",
+    "Diatom_Unknown_Diatom.fragment",
+    "Others_Granules",
+    paste0("Others_Undetermined_", LETTERS[7:12])
+  )))
+
+finallong <- final %>% pivot_longer(cols = Diatom_Symmetric_Biraphid_spp.:Others_Charred, names_to = "Elements", values_to = "Count") 
+finallong$Count[is.na(finallong$Count)] <- 0
+test <- finallong %>% group_by(D_level,sample_num,  Depth..m.,Duration,Elements,) %>% summarize(Count = sum(Count))
+
+finallong %>% view()
+taxon %>% view()
+```
+
+```{r}
+summary_data <- finallong %>%
+  group_by(Mean.time.of.deposition, D_level) %>%
+  summarise(count = sum(Count), .groups = "drop")
+
+test2 <- finallong %>% group_by(D_level,sample_num, Mean.time.of.deposition, Depth..m.,Duration,Elements,) %>% summarize(Count = sum(Count))
+
+unique <- unique(test2$Elements)
+
+taxon <- taxon %>% filter(species %in% unique)
+
+combined_data <- test2 %>%
+  left_join(taxon, by = c("Elements" = "species"))
+
+
+d_order <- paste0("D", 1:21)
+
+combined_data <- combined_data %>%
+  mutate(D_level = factor(D_level, levels = d_order))
+
+plot_data <- combined_data %>%
+  filter(major_group != "Unidentified") %>%
+  group_by(major_group, Mean.time.of.deposition) %>%
+  summarise(total_val = sum(Count, na.rm = T), .groups = "drop") 
+
+
+ggplot(plot_data %>% filter(!is.na(Mean.time.of.deposition)), aes(x = Mean.time.of.deposition, y = total_val,  group = major_group)) +
+  geom_line(linewidth = 1) +
+  geom_point() +
+  labs(
+    title = "Total Counts by Major Group across time points",
+    x = "Mean time of deposition",
+    y = "Sum of Counts",
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(~major_group, scales="free") +
+  geom_smooth()
+```
+The graph above shows the counts for the different major groups through time.
+It is important to note that the scales on the Y-axis are different for the different groups.
+The groups that seem to be the most prevelant are Centric, NDO, and Pennate.
