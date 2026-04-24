@@ -1,7 +1,7 @@
 ---
 title: "Initial Report - Diatoms"
 output: pdf_document
-authors: Sydney Barber and Gregory J. Matthews
+author: Sydney Barber and Gregory J. Matthews
 date: "2026-04-20"
 ---
 
