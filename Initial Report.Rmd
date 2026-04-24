@@ -6,8 +6,12 @@ date: "2026-04-20"
 ---
 
 # Summary 
+To clean the data, we removed the major groups that had unknown or unidentified groups. 
+Then it transforms the data from wide to long format, where all individual element names are moved into a single column and their corresponding values into another. Finally, it replaces any missing values with zeros and calculates the total counts, grouped by variables like depth, sample number, and duration.
 
-The graphs below shows the counts for the different major groups through time.It is important to note that the scales on the Y-axis are different for the different groups. The groups that seem to be the most prevelant are Centric, NDO, and Pennate.
+The graphs below shows the counts for the different major groups through time. It is important to note that the scales on the Y-axis are different for the different groups. The use of free scales in the plot allows for the detection of relative population dynamics within less abundant groups, such as F1 or GSSC, which would otherwise be flattened by the higher magnitudes of dominant groups like Centric diatoms. This visualization serves as a diagnostic tool to identify synchronous shifts across different taxa, suggesting potential environmental thresholds or 'tipping points' in the depositional history. The groups that seem to be the most prevelant are Centric, NDO, and Pennate.
+
+Initially it seems that there is a trend in F1, GSSC, Biogenic, and NDG. However, statisitcal analysis must be done to prove this.
 
 ```{r setup, include=FALSE, echo = FALSE}
 library(dplyr)
@@ -18,7 +22,6 @@ final <- read.csv("./data/Final_diatom_phytolith_by_transect.csv")
 ```
 
 ```{r, echo = FALSE, message = FALSE}
-#WHY ISNT THIS WORKING
 final <- final %>% 
   dplyr::select(-any_of(c(
     paste0("Diatom_Unidentified_", LETTERS[1:5]),
@@ -91,9 +94,8 @@ ggplot(plot_data %>% filter(!is.na(Mean.time.of.deposition)), aes(x = Mean.time.
 <!-- # #Test for monotonic relationship -->
 <!-- # cor.test(plot_data$Mean.time.of.deposition, plot_data$total_val, method = "kendall") -->
 
-Stratified Testing
-Sydney's Implementation
 
+# Statisitcal Analysis
 ```{r, echo=FALSE, message=FALSE}
 library(energy)
 set.seed(413)
