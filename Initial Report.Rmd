@@ -18,8 +18,9 @@ final <- read.csv("./data/Final_diatom_phytolith_by_transect.csv")
 ```
 
 ```{r, echo = FALSE, message = FALSE}
+#WHY ISNT THIS WORKING
 final <- final %>% 
-  select(-any_of(c(
+  dplyr::select(-any_of(c(
     paste0("Diatom_Unidentified_", LETTERS[1:5]),
     "Diatom_Unknown_Diatom",
     "Diatom_Unknown_Diatom.fragment",
@@ -74,14 +75,73 @@ ggplot(plot_data %>% filter(!is.na(Mean.time.of.deposition)), aes(x = Mean.time.
 ```
 
 
-```{r}
-#Stratify by group
+<!-- Greg's Notes/What he Wants To Do -->
 
-#Test for ANY dependence.  
-#Citation: https://projecteuclid.org/journals/annals-of-statistics/volume-35/issue-6/Measuring-and-testing-dependence-by-correlation-of-distances/10.1214/009053607000000505.full
+
+<!-- # #KENDALLS TOW (no assumptions of linearity)-concordance -->
+<!-- # #spearman  -->
+<!-- #  -->
+<!-- # #Stratify by group -->
+<!-- #  -->
+<!-- # #Test for ANY dependence.   -->
+<!-- # #Citation: https://projecteuclid.org/journals/annals-of-statistics/volume-35/issue-6/Measuring-and-testing-dependence-by-correlation-of-distances/10.1214/009053607000000505.full -->
+<!-- # library(energy) -->
+<!-- # dcor.test(plot_data$Mean.time.of.deposition, plot_data$total_val) -->
+<!-- #  -->
+<!-- # #Test for monotonic relationship -->
+<!-- # cor.test(plot_data$Mean.time.of.deposition, plot_data$total_val, method = "kendall") -->
+
+Stratified Testing
+Sydney's Implementation
+
+```{r, echo=FALSE, message=FALSE}
 library(energy)
-dcor.test(plot_data$Mean.time.of.deposition, plot_data$total_val)
+set.seed(413)
+run_dependency_tests <- function(df)  {
+  
+  #Test Greg Found which tests for any dependence
+  dcor_res <- energy::dcor.test(df$Mean.time.of.deposition, df$total_val, R = 1000) 
+  #R is permutations, how many should we do
+  
+  #Kendall's Tau 
+  ken_res <- cor.test(df$Mean.time.of.deposition, df$total_val, method = "kendall", exact = F)
+  
+  #Returning the data in a clean matter
+  tibble(
+    dcor_stat = dcor_res$statistic,
+    dcor_p    = dcor_res$p.value,
+    kendall_tau = ken_res$estimate,
+    kendall_p   = ken_res$p.value
+  )
+}
 
-#Test for monotonic relationship
-cor.test(plot_data$Mean.time.of.deposition, plot_data$total_val, method = "kendall")
+test_results <- plot_data %>%
+  filter(!is.na(Mean.time.of.deposition)) %>%
+  group_by(major_group) %>%
+  nest() %>%
+  mutate(tests = map(data, ~run_dependency_tests(.x))) %>%
+  unnest(tests) %>%
+  ungroup() %>%            
+  dplyr::select(-data)
+
+
+
+
+test_results <-test_results %>% 
+  mutate(kendall_p_adj = p.adjust(kendall_p, method="BH"),
+         dcor_p_adj = p.adjust(dcor_p, method ="BH" )
+         ) %>% select (major_group, dcor_stat, dcor_p, dcor_p_adj, kendall_tau, kendall_p, kendall_p_adj)
+
+
+
+
+library(kableExtra)
+
+kable(test_results, caption = "Correlation Test Results") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  row_spec(0, bold = TRUE)
+
+
 ```
+
+We ran Kendall's Tau and a Distance Correlation Test (DCT) on each of the major groups. We then adjusted for multiple hypothesis testing using the Benjamini-Hochberg (BH) False Discovery Rate Correction. The DCT tests the null hypothesis of independence between x and y, which in this case is time and counts of each of the major groups at that specific time point versus the alternative of not independence: dependence. Based on the results of this test, the groups Biogenic and FI rejected the null hypothesis at the 0.05 level meaning that there is detected significally significant evidence of dependence. Then, for the Kendall's Tau Test we tested the null hypothesis that Kendall's Tau is 0, versus the alternative that it is not 0. Based on the results of this test, the group Biogenic rejected the null hypothesis at the 0.05 level meaning that there is statistically significant evidence of a discordant relationship between time and the count of the group. It is interesting to note that Biogenic was rejected in both tests which indicates that there is strong evidence of a relationship.
