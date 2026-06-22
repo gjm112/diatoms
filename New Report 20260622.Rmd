@@ -1,0 +1,150 @@
+---
+title: "New Report - June 22, 2026"
+output: pdf_document
+author: Sydney Barber and Gregory J. Matthews
+date: "2026-06-22"
+---
+
+# Summary 
+As a first step, we removed the major groups that had unknown or unidentified groups.  Missing values were assumed to be zeroes and total counts were computed by summing across the 4 replicates.  Observation were then placed into major groups and a total count for each major group was computed.  
+
+The graphs below shows the total counts for the different major groups through time. It is important to note that the scales on the Y-axis are different for the different groups. The use of free scales in the plot allows for the detection of relative population dynamics within less abundant groups, such as F1 or GSSC, which would otherwise be flattened by the higher magnitudes of dominant groups like Centric diatoms. This visualization serves as a diagnostic tool to identify synchronous shifts across different taxa, suggesting potential environmental thresholds or 'tipping points' in the depositional history. The groups that seem to be the most prevelant are Centric, NDO, and Pennate.
+
+Initially it seems that there is a trend in F1, GSSC, Biogenic, and NDG. Formal statistical analysis is performed check if any of these trends are statistically significant.  
+
+```{r setup, include=FALSE, echo = FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+taxon <- read.csv("./data/taxonomy_species_table.csv")
+final <- read.csv("./data/Final_diatom_phytolith_by_transect.csv")
+```
+
+```{r, echo = FALSE, message = FALSE}
+final <- final %>% 
+  dplyr::select(-any_of(c(
+    paste0("Diatom_Unidentified_", LETTERS[1:5]),
+    "Diatom_Unknown_Diatom",
+    "Diatom_Unknown_Diatom.fragment",
+    "Others_Granules",
+    paste0("Others_Undetermined_", LETTERS[7:12])
+  )))
+
+finallong <- final %>% pivot_longer(cols = Diatom_Symmetric_Biraphid_spp.:Others_Charred, names_to = "Elements", values_to = "Count") 
+finallong$Count[is.na(finallong$Count)] <- 0
+test <- finallong %>% group_by(D_level,sample_num,  Depth..m.,Duration,Elements,) %>% summarize(Count = sum(Count))
+
+```
+
+```{r echo = FALSE, message = FALSE}
+summary_data <- finallong %>%
+  group_by(Mean.time.of.deposition, D_level) %>%
+  summarise(count = sum(Count), .groups = "drop")
+
+test2 <- finallong %>% group_by(D_level,sample_num, Mean.time.of.deposition, Depth..m.,Duration,Elements,) %>% summarize(Count = sum(Count))
+
+unique <- unique(test2$Elements)
+
+taxon <- taxon %>% filter(species %in% unique)
+
+combined_data <- test2 %>%
+  left_join(taxon, by = c("Elements" = "species"))
+
+
+d_order <- paste0("D", 1:21)
+
+combined_data <- combined_data %>%
+  mutate(D_level = factor(D_level, levels = d_order))
+
+plot_data <- combined_data %>%
+  filter(major_group != "Unidentified") %>%
+  group_by(major_group, Mean.time.of.deposition) %>%
+  summarise(total_val = sum(Count, na.rm = T), .groups = "drop") 
+
+
+ggplot(plot_data %>% filter(!is.na(Mean.time.of.deposition)), aes(x = Mean.time.of.deposition, y = total_val,  group = major_group)) +
+  geom_line(linewidth = 1) +
+  geom_point() +
+  labs(
+    title = "Total Counts by Major Group across time points",
+    x = "Mean time of deposition",
+    y = "Sum of Counts",
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(~major_group, scales="free") +
+  geom_smooth()
+```
+
+
+<!-- Greg's Notes/What he Wants To Do -->
+
+
+<!-- # #KENDALLS TOW (no assumptions of linearity)-concordance -->
+<!-- # #spearman  -->
+<!-- #  -->
+<!-- # #Stratify by group -->
+<!-- #  -->
+<!-- # #Test for ANY dependence.   -->
+<!-- # #Citation: https://projecteuclid.org/journals/annals-of-statistics/volume-35/issue-6/Measuring-and-testing-dependence-by-correlation-of-distances/10.1214/009053607000000505.full -->
+<!-- # library(energy) -->
+<!-- # dcor.test(plot_data$Mean.time.of.deposition, plot_data$total_val) -->
+<!-- #  -->
+<!-- # #Test for monotonic relationship -->
+<!-- # cor.test(plot_data$Mean.time.of.deposition, plot_data$total_val, method = "kendall") -->
+
+
+# Statisitcal Analysis
+```{r, echo=FALSE, message=FALSE}
+library(energy)
+set.seed(413)
+run_dependency_tests <- function(df)  {
+  
+  #Test Greg Found which tests for any dependence
+  dcor_res <- energy::dcor.test(df$Mean.time.of.deposition, df$total_val, R = 1000) 
+  #R is permutations, how many should we do
+  
+  #Kendall's Tau 
+  ken_res <- cor.test(df$Mean.time.of.deposition, df$total_val, method = "kendall", exact = F)
+  
+  #Returning the data in a clean matter
+  tibble(
+    dcor_stat = dcor_res$statistic,
+    dcor_p    = dcor_res$p.value,
+    kendall_tau = ken_res$estimate,
+    kendall_p   = ken_res$p.value
+  )
+}
+
+test_results <- plot_data %>%
+  filter(!is.na(Mean.time.of.deposition)) %>%
+  group_by(major_group) %>%
+  nest() %>%
+  mutate(tests = map(data, ~run_dependency_tests(.x))) %>%
+  unnest(tests) %>%
+  ungroup() %>%            
+  dplyr::select(-data)
+
+
+
+
+test_results <-test_results %>% 
+  mutate(kendall_p_adj = p.adjust(kendall_p, method="BH"),
+         dcor_p_adj = p.adjust(dcor_p, method ="BH" )
+         ) %>% select (major_group, dcor_stat, dcor_p, dcor_p_adj, kendall_tau, kendall_p, kendall_p_adj)
+
+
+
+
+library(kableExtra)
+
+kable(test_results, caption = "Correlation Test Results") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  row_spec(0, bold = TRUE)
+
+
+```
+
+## Tests of Association
+
+For each of the major groups, two tests of association were performed for this preliminary analysis: Kendall's $\tau$ and Distance Correlation Test (DCT) (Full details of the DCT can be found here: https://projecteuclid.org/journals/annals-of-statistics/volume-35/issue-6/Measuring-and-testing-dependence-by-correlation-of-distances/10.1214/009053607000000505.full).  We then adjusted for multiple hypothesis testing using the Benjamini-Hochberg (BH) False Discovery Rate (FDR) Correction. The DCT tests the null hypothesis of independence between x and y, which in this case is time and counts, of each of the major groups versus the alternative of not independence (i.e. dependence). Based on the results of this test, the groups Biogenic and FI rejected the null hypothesis at the 0.05 level meaning that there is detected significantly significant evidence of dependence. Then, for the Kendall's $\tau$ Test we tested the null hypothesis that Kendall's $\tau$ is 0, versus the alternative that it is not 0. Based on the results of this test, the group Biogenic rejected the null hypothesis at the 0.05 level meaning that there is statistically significant evidence of a discordant relationship (i.e. the estimated Kendall's $\tau$ value is negative) between time and the count of the group. It is interesting to note that Biogenic was rejected in both tests which indicates that there is strong evidence of a relationship.
