@@ -16,13 +16,13 @@ final <- final %>%
 
 finallong <- final %>% pivot_longer(cols = Diatom_Symmetric_Biraphid_spp.:Others_Charred, names_to = "Elements", values_to = "Count") 
 finallong$Count[is.na(finallong$Count)] <- 0
-test <- finallong %>% group_by(D_level,sample_num,  Depth..m.,Duration,Elements,) %>% summarize(Count = sum(Count))
+#test <- finallong %>% group_by(D_level,sample_num,  Depth..m.,Duration,Elements,) %>% summarize(Count = sum(Count))
 
 summary_data <- finallong %>%
   group_by(Mean.time.of.deposition, D_level) %>%
   summarise(count = sum(Count), .groups = "drop")
 
-test2 <- finallong %>% group_by(D_level,sample_num, Mean.time.of.deposition, Depth..m.,Duration,Elements,) %>% summarize(Count = sum(Count))
+test2 <- finallong %>% group_by(D_level,sample_num, Mean.time.of.deposition, Depth..m.,Duration,Elements) %>% summarize(Count = sum(Count))
 
 unique <- unique(test2$Elements)
 
@@ -32,7 +32,7 @@ combined_data <- test2 %>%
   left_join(taxon, by = c("Elements" = "species"))
 
 
-d_order <- paste0("D", 1:21)
+d_order <- paste0("D", 1:26)
 
 combined_data <- combined_data %>%
   mutate(D_level = factor(D_level, levels = d_order))
@@ -43,6 +43,12 @@ plot_data <- combined_data %>%
   summarise(total_val = sum(Count, na.rm = T), .groups = "drop") 
 
 plot_data %>% filter(major_group == "Biogenic") %>% ggplot(aes(x = Mean.time.of.deposition, y = total_val)) + geom_point() + geom_line()
+
+#Set up the paleoTS data
+prepped <- combined_data %>% filter(major_group == "Biogenic") %>% group_by(D_level) %>% summarize(mm = mean(Count),
+                                                                                        vv = var(Count),
+                                                                                        nn = n(), 
+                                                                                        tt = head(Mean.time.of.deposition,1))
 
 x <- plot_data %>% filter(major_group == "Biogenic") %>% pull(total_val)
 x <- as.paleoTS(x)
