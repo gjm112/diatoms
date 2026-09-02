@@ -1,0 +1,95 @@
+---
+title: "Report"
+format: pdf
+editor: visual
+date: "9/2/2026"
+author: "Sydney A. Barber and Gregoey J. Matthews"
+---
+
+## Introduction 
+
+```{r}
+library(paleoTS)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+taxon <- read.csv("./data/taxonomy_species_table.csv")
+final <- read.csv("./data/Final_diatom_phytolith_by_transect.csv")
+
+final <- final %>% 
+  dplyr::select(-any_of(c(
+    paste0("Diatom_Unidentified_", LETTERS[1:5]),
+    "Diatom_Unknown_Diatom",
+    "Diatom_Unknown_Diatom.fragment",
+    "Others_Granules",
+    paste0("Others_Undetermined_", LETTERS[7:12])
+  )))
+
+finallong <- final %>% pivot_longer(cols = Diatom_Symmetric_Biraphid_spp.:Others_Charred, names_to = "Elements", values_to = "Count") 
+finallong$Count[is.na(finallong$Count)] <- 0
+test <- finallong %>% group_by(D_level,sample_num,  Depth..m.,Duration,Elements,) %>% summarize(Count = sum(Count))
+
+summary_data <- finallong %>%
+  group_by(Mean.time.of.deposition, D_level) %>%
+  summarise(count = sum(Count), .groups = "drop")
+
+test2 <- finallong %>% group_by(D_level,sample_num, Mean.time.of.deposition, Depth..m.,Duration,Elements,) %>% summarize(Count = sum(Count))
+
+unique <- unique(test2$Elements)
+
+taxon <- taxon %>% filter(species %in% unique)
+
+combined_data <- test2 %>%
+  left_join(taxon, by = c("Elements" = "species"))
+
+
+d_order <- paste0("D", 1:21)
+
+combined_data <- combined_data %>%
+  mutate(D_level = factor(D_level, levels = d_order)) %>%
+  filter(!is.na(D_level)) %>%
+  droplevels()
+
+
+#Calculate total specimens counted (N_total) per sample layer
+sample_totals <- combined_data %>%
+  group_by(D_level, Mean.time.of.deposition) %>%
+  summarise(N_total = sum(Count), .groups = "drop")
+
+
+occurrence_check <- combined_data %>%
+  filter(!is.na(morphotype), morphotype != "") %>%
+  group_by(morphotype, D_level) %>%
+  summarise(present = sum(Count) > 0, .groups = "drop") %>%
+  group_by(morphotype) %>%
+  summarise(n_present = sum(present), n_levels = n(), .groups = "drop") %>%
+  mutate(prop_present = n_present / n_levels)
+
+keep_morphotypes <- occurrence_check %>%
+  filter(prop_present >= 0.5) %>%
+  pull(morphotype)
+
+excluded_morphotypes <- occurrence_check %>%
+  filter(prop_present < 0.5)
+
+cat("Excluded morphotypes (too sparse):\n")
+print(excluded_morphotypes)
+
+combined_data_morphotype <- combined_data %>%
+  filter(morphotype %in% keep_morphotypes)
+
+```
+
+```{r}
+library(ggplot2)
+combined_data %>% group_by(D_level, Mean.time.of.deposition) %>% summarize(Count = mean(Count)) %>%  ggplot(aes(x = Mean.time.of.deposition, y = Count)) + geom_point() + geom_smooth() + facet_wrap(~ major_group, scales = "free_y")
+```
+
+```{r echo = FALSE}
+load("./results_major_group.RData")
+```
+
+```{r}
+results_major_group
+```
+

@@ -134,6 +134,9 @@ results_major_group <- lapply(ts_major_group, fit_5_models)
 results_morphotype  <- lapply(ts_morphotype, fit_5_models)
 results_eco_group   <- lapply(ts_eco_group, fit_5_models)
 
+save(results_major_group, file = "./results_major_group.RData")
+save(results_morphotype, file = "./results_morphotype.RData")
+save(results_eco_group, file = "./results_eco_group.RData")
 
 print_labeled_results(results_major_group, "Major Group")
 print_labeled_results(results_morphotype, "Morphotype")
