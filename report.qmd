@@ -6,7 +6,7 @@ date: "9/2/2026"
 author: "Sydney A. Barber and Gregoey J. Matthews"
 ---
 
-## Introduction 
+## Introduction
 
 ```{r}
 library(paleoTS)
@@ -82,7 +82,16 @@ combined_data_morphotype <- combined_data %>%
 
 ```{r}
 library(ggplot2)
-combined_data %>% group_by(D_level, Mean.time.of.deposition) %>% summarize(Count = mean(Count)) %>%  ggplot(aes(x = Mean.time.of.deposition, y = Count)) + geom_point() + geom_smooth() + facet_wrap(~ major_group, scales = "free_y")
+combined_data %>% 
+  group_by(D_level, Mean.time.of.deposition, major_group) %>% 
+  summarize(Count = mean(Count), .groups = "drop") %>%
+  ggplot(aes(x = Mean.time.of.deposition, y = Count)) + 
+  geom_point() + 
+  geom_smooth() + 
+  facet_wrap(~ major_group, scales = "free_y") +
+  labs(title = "Mean Count Over Time by Major Group",
+       x = "Mean Time of Deposition",
+       y = "Mean Count")
 ```
 
 ```{r echo = FALSE}
@@ -93,3 +102,28 @@ load("./results_major_group.RData")
 results_major_group
 ```
 
+```{r}
+combined_data %>% 
+  group_by(D_level, Mean.time.of.deposition, morphotype) %>% 
+  summarize(Count = mean(Count), .groups = "drop") %>%
+  ggplot(aes(x = Mean.time.of.deposition, y = Count)) + 
+  geom_point() + 
+  geom_smooth() + 
+  facet_wrap(~ morphotype, scales = "free_y") +
+  labs(title = "Mean Count Over Time by Morphotype",
+       x = "Mean Time of Deposition",
+       y = "Mean Count")
+```
+
+```{r}
+combined_data %>% 
+  group_by(D_level, Mean.time.of.deposition, ecological_group) %>% 
+  summarize(Count = mean(Count), .groups = "drop") %>%
+  ggplot(aes(x = Mean.time.of.deposition, y = Count)) + 
+  geom_point() + 
+  geom_smooth() + 
+  facet_wrap(~ ecological_group, scales = "free_y") +
+  labs(title = "Mean Count Over Time by Major Group",
+       x = "Mean Time of Deposition",
+       y = "Mean Count")
+```
