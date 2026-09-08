@@ -65,7 +65,8 @@ cat("Excluded morphotypes (too sparse):\n")
 print(excluded_morphotypes)
 
 combined_data_morphotype <- combined_data %>%
-  filter(morphotype %in% keep_morphotypes)
+  filter(morphotype %in% keep_morphotypes) %>%
+  filter(morphotype != "Asymmetric_Biraphid")  
 
 #Helper function to compute y (relative abundance) & vv (binomial variance)
 get_paleots_list <- function(data, group_var) {
@@ -142,11 +143,4 @@ print_labeled_results(results_major_group, "Major Group")
 print_labeled_results(results_morphotype, "Morphotype")
 print_labeled_results(results_eco_group, "Ecological Group")
 
-for (nm in names(ts_morphotype)) {
-  obj <- ts_morphotype[[nm]]
-  cat(nm, "\n")
-  print(obj$vv)
-  print(obj$mm)
-  print(obj$tt)
-  cat("\n")
-}
+
