@@ -76,9 +76,12 @@ cat("Excluded morphotypes (too sparse):\n")
 print(excluded_morphotypes)
 
 combined_data_morphotype <- combined_data %>%
-  filter(morphotype %in% keep_morphotypes)
+  filter(morphotype %in% keep_morphotypes) %>%
+  filter(morphotype != "Asymmetric_Biraphid") 
 
 ```
+
+Up here we kept a lot of the same things as we did before, however we added something to check for morphotypes where there was not enough data present to do the statistical analysis. This included specifically filtering out the group Asymmetric Biraphid.
 
 ```{r}
 library(ggplot2)
@@ -94,6 +97,10 @@ combined_data %>%
        y = "Mean Count")
 ```
 
+In these graphs, we have the count of the particular major group on the y-axis for each time point, plotted on the x-axis.
+
+From these graphs above, it looks to be that thee might be a significant trend for Centric and F1 major groups. Pennate also seems to have some sort of trend where it looks to peak in the middle.
+
 ```{r echo = FALSE}
 load("./results_major_group.RData")
 ```
@@ -101,6 +108,8 @@ load("./results_major_group.RData")
 ```{r}
 results_major_group
 ```
+
+Here we can see for every major group other than FI and GSSC, Strict Stasis was the optimal model. For the other 2, Ornstein-Uhlenbeck model was optimal. This preference of the OU model for FI and GSSC indicates that there could be some optimal value it keeps trending towards.
 
 ```{r}
 combined_data %>% 
@@ -115,6 +124,20 @@ combined_data %>%
        y = "Mean Count")
 ```
 
+Now we have made the same graphs where we have the count for each morphotype on the y-axis, and the time point plotted on the x-axis.
+
+From here we can see that there seems to be a decreasing trend in Woody_Arboreal, Mixed_C3_C4, and Non-Diagnostic Grass. For other groups such as Monoraphid and Araphid_Fragilariaceae there seems to be some up and down movement.
+
+```{r}
+load("./results_morphotype.RData")
+```
+
+```{r}
+results_morphotype
+```
+
+Mixed_C3_C4, Pooidae_C3, and Woody_Arboreal all have Ornstein-Uhlenbeck being the most optimal. For the rest, Strict Stasis was the best.
+
 ```{r}
 combined_data %>% 
   group_by(D_level, Mean.time.of.deposition, ecological_group) %>% 
@@ -123,7 +146,9 @@ combined_data %>%
   geom_point() + 
   geom_smooth() + 
   facet_wrap(~ ecological_group, scales = "free_y") +
-  labs(title = "Mean Count Over Time by Major Group",
+  labs(title = "Mean Count Over Time by Ecological Group",
        x = "Mean Time of Deposition",
        y = "Mean Count")
 ```
+
+Finally, we have made the same graphs, but split up by ecological group. Tychoplanktonic and Planktonic seem to have a lot of movement through time.
