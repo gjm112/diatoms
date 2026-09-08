@@ -160,3 +160,5 @@ load("./results_eco_group.RData")
 ```{r}
 results_eco_group
 ```
+
+We first had to filter out Tychoplanktonic_Saline since there was not enough data.
