@@ -152,3 +152,11 @@ combined_data %>%
 ```
 
 Finally, we have made the same graphs, but split up by ecological group. Tychoplanktonic and Planktonic seem to have a lot of movement through time.
+
+```{r}
+load("./results_eco_group.RData")
+```
+
+```{r}
+results_eco_group
+```
