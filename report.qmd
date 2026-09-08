@@ -161,4 +161,4 @@ load("./results_eco_group.RData")
 results_eco_group
 ```
 
-We first had to filter out Tychoplanktonic_Saline since there was not enough data.
+We first had to filter out Tychoplanktonic_Saline since there was not enough data. C3_Grass_Cool_Moist, Forest_Woodland, and Grass_Mixed all tend toward Ornstein-Uhlenbeck. For all the rest, StrictStasis was preferred.
