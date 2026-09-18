@@ -8,7 +8,7 @@ author: "Sydney A. Barber and Gregory J. Matthews"
 
 ## Introduction
 
-For each of the 3 type of classifications we tested 5 models. (List them) To create the Paleo TS objects the means at each time points across the replicates as well as taking the pooled variance. We took the pooled variance due to low sample size at each time points, so we are assuming that the variance is constant over time.\
+For each of the 3 type of classifications we tested 5 models. (Strict Stasis, Stasis, Unbiased Random Walk, Generic Random Walk, and Ornstein-Uhlenbeck) To create the Paleo TS objects the means at each time points across the replicates as well as taking the pooled variance. We took the pooled variance due to low sample size at each time points, so we are assuming that the variance is constant over time.\
 \
 Across all three categorical frameworks, the model chosen most often was **Strict Stasis**, though specific subgroups consistently favored the **Ornstein-Uhlenbeck (OU) model**. In the major groups, all major categories found Strict Stasis to be the best fitting model except for **FI** and **GSSC**, both of which found the OU model to be th ebest fit. Similarly, when grouped by morphotype, **Mixed_C3_C4**, **Pooidae_C3**, and **Woody_Arboreal** demonstrated a distinct preference for the OU model, while all remaining morphotypes favored Strict Stasis. Note that moprphotype **Asymmetric Biraphid** was removed from the analysis because o flow variance. Finally, among the ecological groups, **Tychoplanktonic_Saline** was removed due to low variance. Among the remaining ecological groups **C3_Grass_Cool_Moist**, **Forest_Woodland**, and **Grass_Mixed** found OU to be the best fitting model, with Strict Stasis remaining the optimal fit for the rest.\
 \
