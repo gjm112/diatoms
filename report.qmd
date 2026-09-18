@@ -85,7 +85,7 @@ combined_data_morphotype <- combined_data %>%
 
 ```
 
-Up here we kept a lot of the same things as we did before, however we added something to check for morphotypes where there was not enough data present to do the statistical analysis. This included specifically filtering out the group Asymmetric Biraphid.
+In the code above, we kept a lot of the same things as we did before, however we added a check for morphotypes where there was not enough data present to do the statistical analysis. This included specifically filtering out the group Asymmetric Biraphid.
 
 ## Major Group
 
