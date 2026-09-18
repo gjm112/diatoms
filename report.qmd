@@ -8,7 +8,9 @@ author: "Sydney A. Barber and Gregory J. Matthews"
 
 ## Introduction
 
-Across all three categorical frameworks, the model chosen most often was  **Strict Stasis**, though specific subgroups consistently favored the **Ornstein-Uhlenbeck (OU) model**. In the major groups, all major categories found Strict Stasis to be the best fitting model except for **FI** and **GSSC**, both of which found the OU model to be th ebest fit. Similarly, when grouped by morphotype, **Mixed_C3_C4**, **Pooidae_C3**, and **Woody_Arboreal** demonstrated a distinct preference for the OU model, while all remaining morphotypes favored Strict Stasis.  Note that moprphotype **Asymmetric Biraphid** was removed from the analysis because o flow variance. Finally, among the ecological groups, **Tychoplanktonic_Saline** was removed due to low variance.  Among the remaining ecological groups **C3_Grass_Cool_Moist**, **Forest_Woodland**, and **Grass_Mixed** found OU to be the best fitting model, with Strict Stasis remaining the optimal fit for the rest.
+Across all three categorical frameworks, the model chosen most often was **Strict Stasis**, though specific subgroups consistently favored the **Ornstein-Uhlenbeck (OU) model**. In the major groups, all major categories found Strict Stasis to be the best fitting model except for **FI** and **GSSC**, both of which found the OU model to be th ebest fit. Similarly, when grouped by morphotype, **Mixed_C3_C4**, **Pooidae_C3**, and **Woody_Arboreal** demonstrated a distinct preference for the OU model, while all remaining morphotypes favored Strict Stasis. Note that moprphotype **Asymmetric Biraphid** was removed from the analysis because o flow variance. Finally, among the ecological groups, **Tychoplanktonic_Saline** was removed due to low variance. Among the remaining ecological groups **C3_Grass_Cool_Moist**, **Forest_Woodland**, and **Grass_Mixed** found OU to be the best fitting model, with Strict Stasis remaining the optimal fit for the rest.
+
+## EDA
 
 ```{r echo = FALSE, message=FALSE, warning=FALSE}
 library(paleoTS)
@@ -85,6 +87,8 @@ combined_data_morphotype <- combined_data %>%
 
 Up here we kept a lot of the same things as we did before, however we added something to check for morphotypes where there was not enough data present to do the statistical analysis. This included specifically filtering out the group Asymmetric Biraphid.
 
+## Major Group
+
 ```{r echo = FALSE}
 library(ggplot2)
 combined_data %>% 
@@ -113,6 +117,8 @@ results_major_group
 
 Here we can see for every major group other than FI and GSSC, Strict Stasis was the optimal model. For the other 2, Ornstein-Uhlenbeck model was optimal. This preference of the OU model for FI and GSSC indicates that there could be some optimal value it keeps trending towards.
 
+## Morphotype
+
 ```{r echo = FALSE}
 combined_data %>% 
   group_by(D_level, Mean.time.of.deposition, morphotype) %>% 
@@ -140,6 +146,8 @@ results_morphotype
 
 Mixed_C3_C4, Pooidae_C3, and Woody_Arboreal all have Ornstein-Uhlenbeck being the most optimal. For the rest, Strict Stasis was the best.
 
+## Ecological Group
+
 ```{r echo = FALSE}
 combined_data %>% 
   group_by(D_level, Mean.time.of.deposition, ecological_group) %>% 
@@ -164,7 +172,6 @@ results_eco_group
 ```
 
 We first had to filter out Tychoplanktonic_Saline since there was not enough data. C3_Grass_Cool_Moist, Forest_Woodland, and Grass_Mixed all tend toward Ornstein-Uhlenbeck. For all the rest, StrictStasis was preferred.
-
 
 ## Apendix
 
