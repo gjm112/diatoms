@@ -8,10 +8,9 @@ author: "Sydney A. Barber and Gregory J. Matthews"
 
 ## Introduction
 
-For each of the 3 type of classifications we tested 5 models. (Strict Stasis, Stasis, Unbiased Random Walk, Generic Random Walk, and Ornstein-Uhlenbeck) To create the Paleo TS objects the means at each time points across the replicates as well as taking the pooled variance. We took the pooled variance due to low sample size at each time points, so we are assuming that the variance is constant over time.\
-\
-Across all three categorical frameworks, the model chosen most often was **Strict Stasis**, though specific subgroups consistently favored the **Ornstein-Uhlenbeck (OU) model**. In the major groups, all major categories found Strict Stasis to be the best fitting model except for **FI** and **GSSC**, both of which found the OU model to be th ebest fit. Similarly, when grouped by morphotype, **Mixed_C3_C4**, **Pooidae_C3**, and **Woody_Arboreal** demonstrated a distinct preference for the OU model, while all remaining morphotypes favored Strict Stasis. Note that moprphotype **Asymmetric Biraphid** was removed from the analysis because o flow variance. Finally, among the ecological groups, **Tychoplanktonic_Saline** was removed due to low variance. Among the remaining ecological groups **C3_Grass_Cool_Moist**, **Forest_Woodland**, and **Grass_Mixed** found OU to be the best fitting model, with Strict Stasis remaining the optimal fit for the rest.\
-\
+For each of the 3 types of classifications, we tested 5 models: Strict Stasis, Stasis, Unbiased Random Walk, Generic Random Walk, and Ornstein-Uhlenbeck (OU). To create the PaleoTS objects for analysis using the fitSimple from the R package paleoTS, the mean at each time point was computed.  For variance, due to low sample size at each time point, we pooled across the time points using the pool.var function.  This means that in all subsequent analysis, we assumed variance was constant across time.  
+
+Across all three groupings (i.e. major group, morphotype, ecological group), the model chosen most often was **Strict Stasis**, though we also observe the **OU model** as the best fitting in some groups. In the major groups, all major categories found Strict Stasis to be the best fitting model except for **FI** and **GSSC**, both of which found the OU model to be the best fit. Similarly, when grouped by morphotype, **Mixed_C3_C4**, **Pooidae_C3**, and **Woody_Arboreal** demonstrated a distinct preference for the OU model, while all remaining morphotypes favored Strict Stasis. Note that morphotype **Asymmetric Biraphid** was removed from the analysis because of low variance. Finally, among the ecological groups, **Tychoplanktonic_Saline** was removed due to low variance. Among the remaining ecological groups **C3_Grass_Cool_Moist**, **Forest_Woodland**, and **Grass_Mixed** found OU to be the best fitting model, with Strict Stasis remaining the optimal fit for the rest.  Full analysis code can be found in the Appenidix.  
 
 ## EDA
 
@@ -103,12 +102,10 @@ combined_data %>%
   facet_wrap(~ major_group, scales = "free_y") +
   labs(title = "Mean Count Over Time by Major Group",
        x = "Mean Time of Deposition",
-       y = "Mean Count")
+       y = "Mean Count") + theme_bw()
 ```
 
-In these graphs, we have the count of the particular major group on the y-axis for each time point, plotted on the x-axis.\
-\
-For each
+In these graphs, we have the count of the particular major group on the y-axis for each time point, plotted on the x-axis.
 
 ```{r echo = FALSE}
 load("./results_major_group.RData")
@@ -118,7 +115,7 @@ load("./results_major_group.RData")
 results_major_group
 ```
 
-Here we can see for every major group other than FI and GSSC, Strict Stasis was the optimal model. For the other 2, Ornstein-Uhlenbeck model was optimal. This preference of the OU model for FI and GSSC indicates that there could be some optimal value it keeps trending towards.
+Here we can see for every major group other than FI and GSSC, Strict Stasis was the optimal model. For the other two major groups (i.e. Biogenic, Centric, NDG, NGO, Pennate), the OU model was the best fit. 
 
 ## Morphotype
 
@@ -132,7 +129,7 @@ combined_data %>%
   facet_wrap(~ morphotype, scales = "free_y") +
   labs(title = "Mean Count Over Time by Morphotype",
        x = "Mean Time of Deposition",
-       y = "Mean Count")
+       y = "Mean Count") + theme_bw()
 ```
 
 Now we have made the same graphs where we have the count for each morphotype on the y-axis, and the time point plotted on the x-axis.
@@ -145,7 +142,7 @@ load("./results_morphotype.RData")
 results_morphotype
 ```
 
-Mixed_C3_C4, Pooidae_C3, and Woody_Arboreal all have Ornstein-Uhlenbeck being the most optimal. For the rest, Strict Stasis was the best.
+Asymmetric Biraphid was removed from the analysis due to low variance.  Of those that remained, Strict Stasis was best except for Mixed_C3_C4, Pooidae_C3, and Woody_Arboreal all of which had  OU being the best fit. 
 
 ## Ecological Group
 
@@ -159,7 +156,7 @@ combined_data %>%
   facet_wrap(~ ecological_group, scales = "free_y") +
   labs(title = "Mean Count Over Time by Ecological Group",
        x = "Mean Time of Deposition",
-       y = "Mean Count")
+       y = "Mean Count") + theme_bw()
 ```
 
 Finally, we have made the same graphs, but split up by ecological group.
@@ -172,9 +169,9 @@ load("./results_eco_group.RData")
 results_eco_group
 ```
 
-We first had to filter out Tychoplanktonic_Saline since there was not enough data. C3_Grass_Cool_Moist, Forest_Woodland, and Grass_Mixed all tend toward Ornstein-Uhlenbeck. For all the rest, StrictStasis was preferred.
+We first had to filter out Tychoplanktonic_Saline since there was not enough data. C3_Grass_Cool_Moist, Forest_Woodland, and Grass_Mixed all tend toward OU. For all the rest, Strict Stasis was preferred.
 
-## Apendix
+## Appendix
 
 ```{r eval = FALSE}
 library(paleoTS)
@@ -245,50 +242,83 @@ print(excluded_morphotypes)
 
 combined_data_morphotype <- combined_data %>%
   filter(morphotype %in% keep_morphotypes) %>%
-  filter(morphotype != "Asymmetric_Biraphid") 
+  filter(morphotype != "Asymmetric_Biraphid")  
 
-library(ggplot2)
-combined_data %>% 
-  group_by(D_level, Mean.time.of.deposition, major_group) %>% 
-  summarize(Count = mean(Count), .groups = "drop") %>%
-  ggplot(aes(x = Mean.time.of.deposition, y = Count)) + 
-  geom_point() + 
-  geom_smooth() + 
-  facet_wrap(~ major_group, scales = "free_y") +
-  labs(title = "Mean Count Over Time by Major Group",
-       x = "Mean Time of Deposition",
-       y = "Mean Count")
+#Helper function to compute y (relative abundance) & vv (binomial variance)
+get_paleots_list <- function(data, group_var) {
+  
+  summary_df <- data %>%
+    filter(!is.na(.data[[group_var]]), .data[[group_var]] != "") %>%
+    group_by(D_level, .data[[group_var]]) %>%
+    summarise(
+      mm = mean(Count),
+      vv = var(Count),
+      nn = n(),
+      tt = head(Mean.time.of.deposition, 1),
+      .groups = "drop"
+    ) %>%
+    arrange(tt)
+  
+  split_data <- split(summary_df, summary_df[[group_var]])
+  
+  lapply(split_data, function(sub_df) {
+    # Drop rows with NA variance (e.g. nn = 1) before pooling
+    valid <- !is.na(sub_df$vv) & sub_df$vv > 0
+    pooled_vv <- pool.var(sub_df$vv[valid], sub_df$nn[valid])
+    
+    as.paleoTS(
+      mm = sub_df$mm,
+      vv = rep(pooled_vv, nrow(sub_df)),
+      nn = sub_df$nn,
+      tt = sub_df$tt
+    )
+  })
+}
 
-load("./results_major_group.RData")
-results_major_group
+
+ts_major_group <- get_paleots_list(combined_data, "major_group")
+ts_morphotype  <- get_paleots_list(combined_data_morphotype, "morphotype")
+#hello plz work
+ts_eco_group   <- get_paleots_list(combined_data, "ecological_group")
+ts_eco_group <- ts_eco_group[names(ts_eco_group) != "Tychoplanktonic_Saline"]
+
+fit_5_models <- function(ts_obj) {
+  m1_ss  <- fitSimple(ts_obj, model = "StrictStasis")
+  m2_sta <- fitSimple(ts_obj, model = "Stasis")
+  m3_urw <- fitSimple(ts_obj, model = "URW")          
+  m4_brw <- fitSimple(ts_obj, model = "GRW")          
+  m5_ou  <- fitSimple(ts_obj, model = "OU")           
+  compareModels(m1_ss, m2_sta, m3_urw, m4_brw, m5_ou, sort = TRUE)
+}
 
 
-combined_data %>% 
-  group_by(D_level, Mean.time.of.deposition, morphotype) %>% 
-  summarize(Count = mean(Count), .groups = "drop") %>%
-  ggplot(aes(x = Mean.time.of.deposition, y = Count)) + 
-  geom_point() + 
-  geom_smooth() + 
-  facet_wrap(~ morphotype, scales = "free_y") +
-  labs(title = "Mean Count Over Time by Morphotype",
-       x = "Mean Time of Deposition",
-       y = "Mean Count")
 
-load("./results_morphotype.RData")
-results_morphotype
+print_labeled_results <- function(results_list, category_name) {
+  cat("\n==================================================\n")
+  cat(" CATEGORY:", toupper(category_name), "\n")
+  cat("==================================================\n")
+  
+  for (group_name in names(results_list)) {
+    cat("\n--------------------------------------------------\n")
+    cat(" GROUP:", group_name, "\n")
+    cat("--------------------------------------------------\n")
+    print(results_list[[group_name]])
+  }
+}
 
-combined_data %>% 
-  group_by(D_level, Mean.time.of.deposition, ecological_group) %>% 
-  summarize(Count = mean(Count), .groups = "drop") %>%
-  ggplot(aes(x = Mean.time.of.deposition, y = Count)) + 
-  geom_point() + 
-  geom_smooth() + 
-  facet_wrap(~ ecological_group, scales = "free_y") +
-  labs(title = "Mean Count Over Time by Ecological Group",
-       x = "Mean Time of Deposition",
-       y = "Mean Count")
 
-load("./results_eco_group.RData")
+results_major_group <- lapply(ts_major_group, fit_5_models)
+results_morphotype  <- lapply(ts_morphotype, fit_5_models)
+results_eco_group   <- lapply(ts_eco_group, fit_5_models)
 
-results_eco_group
+save(results_major_group, file = "./results_major_group.RData")
+save(results_morphotype, file = "./results_morphotype.RData")
+save(results_eco_group, file = "./results_eco_group.RData")
+
+print_labeled_results(results_major_group, "Major Group")
+print_labeled_results(results_morphotype, "Morphotype")
+print_labeled_results(results_eco_group, "Ecological Group")
+
+
+
 ```
