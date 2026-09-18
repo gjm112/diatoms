@@ -103,7 +103,7 @@ get_paleots_list <- function(data, group_var) {
 ts_major_group <- get_paleots_list(combined_data, "major_group")
 ts_morphotype  <- get_paleots_list(combined_data_morphotype, "morphotype")
 ts_eco_group   <- get_paleots_list(combined_data, "ecological_group")
-
+ts_eco_group <- ts_eco_group[names(ts_eco_group) != "Tychoplanktonic_Saline"]
 
 fit_5_models <- function(ts_obj) {
   m1_ss  <- fitSimple(ts_obj, model = "StrictStasis")
