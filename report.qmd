@@ -8,7 +8,10 @@ author: "Sydney A. Barber and Gregory J. Matthews"
 
 ## Introduction
 
-Across all three categorical frameworks, the model chosen most often was **Strict Stasis**, though specific subgroups consistently favored the **Ornstein-Uhlenbeck (OU) model**. In the major groups, all major categories found Strict Stasis to be the best fitting model except for **FI** and **GSSC**, both of which found the OU model to be th ebest fit. Similarly, when grouped by morphotype, **Mixed_C3_C4**, **Pooidae_C3**, and **Woody_Arboreal** demonstrated a distinct preference for the OU model, while all remaining morphotypes favored Strict Stasis. Note that moprphotype **Asymmetric Biraphid** was removed from the analysis because o flow variance. Finally, among the ecological groups, **Tychoplanktonic_Saline** was removed due to low variance. Among the remaining ecological groups **C3_Grass_Cool_Moist**, **Forest_Woodland**, and **Grass_Mixed** found OU to be the best fitting model, with Strict Stasis remaining the optimal fit for the rest.
+For each of the 3 type of classifications we tested 5 models. (List them) To create the Paleo TS objects the means at each time points across the replicates as well as taking the pooled variance. We took the pooled variance due to low sample size at each time points, so we are assuming that the variance is constant over time.\
+\
+Across all three categorical frameworks, the model chosen most often was **Strict Stasis**, though specific subgroups consistently favored the **Ornstein-Uhlenbeck (OU) model**. In the major groups, all major categories found Strict Stasis to be the best fitting model except for **FI** and **GSSC**, both of which found the OU model to be th ebest fit. Similarly, when grouped by morphotype, **Mixed_C3_C4**, **Pooidae_C3**, and **Woody_Arboreal** demonstrated a distinct preference for the OU model, while all remaining morphotypes favored Strict Stasis. Note that moprphotype **Asymmetric Biraphid** was removed from the analysis because o flow variance. Finally, among the ecological groups, **Tychoplanktonic_Saline** was removed due to low variance. Among the remaining ecological groups **C3_Grass_Cool_Moist**, **Forest_Woodland**, and **Grass_Mixed** found OU to be the best fitting model, with Strict Stasis remaining the optimal fit for the rest.\
+\
 
 ## EDA
 
@@ -85,7 +88,7 @@ combined_data_morphotype <- combined_data %>%
 
 ```
 
-In the code above, we kept a lot of the same things as we did before, however we added a check for morphotypes where there was not enough data present to do the statistical analysis. This included specifically filtering out the group Asymmetric Biraphid.
+In the code in the appendix, we kept a lot of the same steps as we had before, however we added a check for morphotypes where there was not enough data present to do the statistical analysis. This included specifically filtering out the group Asymmetric Biraphid.
 
 ## Major Group
 
@@ -103,9 +106,9 @@ combined_data %>%
        y = "Mean Count")
 ```
 
-In these graphs, we have the count of the particular major group on the y-axis for each time point, plotted on the x-axis.
-
-From these graphs above, it looks to be that thee might be a significant trend for Centric and F1 major groups. Pennate also seems to have some sort of trend where it looks to peak in the middle.
+In these graphs, we have the count of the particular major group on the y-axis for each time point, plotted on the x-axis.\
+\
+For each
 
 ```{r echo = FALSE}
 load("./results_major_group.RData")
@@ -134,8 +137,6 @@ combined_data %>%
 
 Now we have made the same graphs where we have the count for each morphotype on the y-axis, and the time point plotted on the x-axis.
 
-From here we can see that there seems to be a decreasing trend in Woody_Arboreal, Mixed_C3_C4, and Non-Diagnostic Grass. For other groups such as Monoraphid and Araphid_Fragilariaceae there seems to be some up and down movement.
-
 ```{r echo = FALSE}
 load("./results_morphotype.RData")
 ```
@@ -161,7 +162,7 @@ combined_data %>%
        y = "Mean Count")
 ```
 
-Finally, we have made the same graphs, but split up by ecological group. Tychoplanktonic and Planktonic seem to have a lot of movement through time.
+Finally, we have made the same graphs, but split up by ecological group.
 
 ```{r echo = FALSE}
 load("./results_eco_group.RData")
