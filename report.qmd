@@ -8,6 +8,8 @@ author: "Sydney A. Barber and Gregoey J. Matthews"
 
 ## Introduction
 
+Across all three categorical frameworks, evolutionary dynamics were predominantly driven by **Strict Stasis**, though specific subgroups consistently favored the **Ornstein-Uhlenbeck (OU) model**, indicating directional selection toward optimum trait values. In the major groups, all major categories adhered to Strict Stasis except for **FI** and **GSSC**, both of which optimalized under the OU model. Similarly, when classified by morphotype, **Mixed_C3_C4**, **Pooidae_C3**, and **Woody_Arboreal** demonstrated a distinct preference for the OU model, while all remaining morphotypes favored Strict Stasis. Finally, among the ecological groups, following the exclusion of **Tychoplanktonic_Saline** due to insufficient data, **C3_Grass_Cool_Moist**, **Forest_Woodland**, and **Grass_Mixed** aligned with the OU model, with Strict Stasis remaining the optimal fit for the rest.
+
 ```{r}
 library(paleoTS)
 library(dplyr)
