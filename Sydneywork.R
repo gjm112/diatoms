@@ -112,8 +112,7 @@ fit_5_models <- function(ts_obj) {
   m3_urw <- fitSimple(ts_obj, model = "URW")          
   m4_brw <- fitSimple(ts_obj, model = "GRW")          
   m5_ou  <- fitSimple(ts_obj, model = "OU")           
-  
-  compareModels(m1_ss, m2_sta, m3_urw, m4_brw, m5_ou)
+  compareModels(m1_ss, m2_sta, m3_urw, m4_brw, m5_ou, sort = TRUE)
 }
 
 
